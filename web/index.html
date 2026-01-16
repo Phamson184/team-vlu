@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLU Team - Detailed Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-dark: #2d3748;
+            --text-light: #fff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-image: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden; /* Tránh thanh cuộn ngang */
+        }
+
+        /* --- HEADER --- */
+        .header-container { text-align: center; margin-bottom: 50px; color: white; }
+        .main-title { font-family: 'Pacifico', cursive; font-size: 3.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .sub-title { letter-spacing: 2px; opacity: 0.9; margin-top: 10px; }
+
+        /* --- GRID LAYOUT --- */
+        .creative-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- CARD STYLE (Giữ nguyên vẻ đẹp cũ nhưng thêm con trỏ click) --- */
+        .creative-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            width: 280px; /* Nhỏ lại chút để nhìn tổng quan */
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            cursor: pointer; /* Báo hiệu có thể click */
+            position: relative;
+        }
+
+        .creative-card:hover { transform: translateY(-10px) scale(1.05); z-index: 2; }
+        
+        /* Dấu hiệu "Click me" */
+        .click-hint {
+            position: absolute; top: 15px; right: 15px;
+            background: #eee; color: #555; font-size: 0.7rem; padding: 5px 10px;
+            border-radius: 20px; font-weight: bold; opacity: 0; transition: 0.3s;
+        }
+        .creative-card:hover .click-hint { opacity: 1; }
+
+        .image-thumb {
+            width: 120px; height: 120px; border-radius: 50%;
+            margin: -60px auto 20px; background: #fff; padding: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .thumb-img-real { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #ddd; }
+        
+        .card-name { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin-bottom: 5px; }
+        .card-major { font-size: 0.85rem; font-weight: 600; color: #777; text-transform: uppercase; }
+
+        /* --- MÀU SẮC RIÊNG CHO TỪNG CARD --- */
+        .c-son { border-top: 5px solid #4facfe; }
+        .c-truc { border-top: 5px solid #f093fb; }
+        .c-nhut { border-top: 5px solid #fa709a; }
+        .c-minh { border-top: 5px solid #11998e; }
+        .c-thuy { border-top: 5px solid #f77062; }
+
+        /* =================================================================
+           MODAL / SLIDE CHI TIẾT (PHẦN QUAN TRỌNG)
+           ================================================================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* Nền tối làm nổi bật nội dung */
+            z-index: 1000;
+            display: none; /* Ẩn mặc định */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        .modal-content {
+            background: #fff;
+            width: 90%; max-width: 1000px; height: 85vh; /* Chiếm 85% chiều cao màn hình */
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        @keyframes slideUp { from { transform: translateY(50px); } to { transform: translateY(0); } }
+
+        /* Cột bên trái: Ảnh lớn và thông tin tóm tắt */
+        .modal-left {
+            width: 35%;
+            background: #f8f9fa;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+        }
+
+        .modal-avatar-large {
+            width: 180px; height: 180px; border-radius: 50%;
+            object-fit: cover; border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 20px; background: #ddd;
+        }
+
+        .modal-name { font-size: 2rem; font-weight: 800; color: var(--text-dark); line-height: 1.2; }
+        .modal-major { background: var(--text-dark); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; margin: 10px 0 20px; display: inline-block; }
+        
+        .modal-stats { width: 100%; text-align: left; margin-top: 20px; }
+        .stat-row { display: flex; align-items: center; margin-bottom: 15px; color: #555; font-size: 0.95rem; }
+        .stat-row i { width: 30px; font-size: 1.2rem; color: #667eea; }
+
+        /* Cột bên phải: Nội dung chi tiết & Gallery */
+        .modal-right {
+            width: 65%;
+            padding: 50px;
+            overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+        }
+
+        .section-title {
+            font-size: 1.5rem; font-weight: 700; margin-bottom: 15px;
+            position: relative; display: inline-block;
+        }
+        .section-title::after {
+            content: ''; position: absolute; bottom: -5px; left: 0;
+            width: 50px; height: 3px; background: linear-gradient(to right, #667eea, #764ba2);
+        }
+
+        .script-text {
+            font-size: 1.1rem; line-height: 1.8; color: #444; margin-bottom: 30px;
+            background: #fdfdfd; padding: 20px; border-left: 4px solid #667eea; border-radius: 0 10px 10px 0;
+        }
+
+        /* MINI GALLERY - Chỗ để bạn thêm nhiều ảnh */
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px;
+        }
+        .gallery-item {
+            height: 100px; border-radius: 10px; background: #eee;
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .gallery-item:hover img { transform: scale(1.1); }
+        .gallery-caption {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6);
+            color: white; font-size: 0.7rem; text-align: center; padding: 2px;
+        }
+
+        /* Nút đóng Modal */
+        .close-btn {
+            position: absolute; top: 20px; right: 20px;
+            width: 40px; height: 40px; background: #eee; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.2s; font-size: 1.2rem; z-index: 10;
+        }
+        .close-btn:hover { background: #ff5f5f; color: white; }
+
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            .modal-content { flex-direction: column; height: 95vh; overflow-y: scroll; }
+            .modal-left, .modal-right { width: 100%; padding: 30px 20px; }
+            .modal-left { border-bottom: 1px solid #eee; border-right: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1 class="main-title">Our Team Members</h1>
+        <p class="sub-title">Click vào từng thẻ để xem chi tiết</p>
+    </div>
+
+    <div class="creative-grid">
+        <div class="creative-card c-son" onclick="openModal('modal-son')">
+            <span class="click-hint">Click to view slide</span>
+            <div class="image-thumb">
+                <img src="https://via.placeholder.com/150" alt="Sơn" class="thumb-img-real">
+            </div>
+            <h2 class="card-name">Trường Sơn</h2>
+            <p class="card-major">IT Student</p>
+        </div>
+
+        <div class="creative-card c-truc" onclick="openModal('modal-truc')">
+            <span class="click-hint">Click to view slide</span>
+            <div class="image-thumb">
+                <img src="https://via.placeholder.com/150" alt="Trúc" class="thumb-img-real">
+            </div>
+            <h2 class="card-name">Bảo Trúc</h2>
+            <p class="card-major">Multimedia</p>
+        </div>
+
+        <div class="creative-card c-nhut" onclick="openModal('modal-nhut')">
+            <span class="click-hint">Click to view slide</span>
+            <div class="image-thumb">
+                <img src="https://via.placeholder.com/150" alt="Nhựt" class="thumb-img-real">
+            </div>
+            <h2 class="card-name">Minh Nhựt</h2>
+            <p class="card-major">E-commerce</p>
+        </div>
+
+        <div class="creative-card c-minh" onclick="openModal('modal-minh')">
+            <span class="click-hint">Click to view slide</span>
+            <div class="image-thumb">
+                <img src="https://via.placeholder.com/150" alt="Minh" class="thumb-img-real">
+            </div>
+            <h2 class="card-name">Nhật Minh</h2>
+            <p class="card-major">Dentistry</p>
+        </div>
+
+        <div class="creative-card c-thuy" onclick="openModal('modal-thuy')">
+            <span class="click-hint">Click to view slide</span>
+            <div class="image-thumb">
+                <img src="https://via.placeholder.com/150" alt="Thùy" class="thumb-img-real">
+            </div>
+            <h2 class="card-name">Phương Thùy</h2>
+            <p class="card-major">Multimedia</p>
+        </div>
+    </div>
+
+    <div id="modal-son" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-son')"><i class="fas fa-times"></i></div>
+            
+            <div class="modal-left">
+                <img src="https://via.placeholder.com/300" class="modal-avatar-large">
+                <h2 class="modal-name">Trường Sơn</h2>
+                <span class="modal-major" style="background:#4facfe;">Information Technology</span>
+                
+                <div class="modal-stats">
+                    <div class="stat-row"><i class="fas fa-map-marker-alt"></i> Cà Mau (Đất Mũi)</div>
+                    <div class="stat-row"><i class="fas fa-university"></i> Van Lang University</div>
+                    <div class="stat-row"><i class="fas fa-code"></i> Coding, Tech Research</div>
+                    <div class="stat-row"><i class="fas fa-envelope"></i> Zalo / Messenger</div>
+                </div>
+            </div>
+
+            <div class="modal-right">
+                <h3 class="section-title">Introduction</h3>
+                <div class="script-text">
+                    "Hello everyone! My name is Trường Sơn. I come from Cà Mau City, the southernmost tip of Vietnam...
+                    <br><br>
+                    I chose IT because I find coding and building computer systems fascinating. It’s a meaningful career path."
+                </div>
+
+                <h3 class="section-title">My Gallery</h3>
+                <p style="font-size: 0.9rem; color:#666; margin-bottom:10px;">Một số hình ảnh về hoạt động và quê hương tôi:</p>
+                
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://via.placeholder.com/200?text=Que+Huong" alt="Quê hương">
+                        <div class="gallery-caption">My Hometown</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://via.placeholder.com/200?text=Code" alt="Coding">
+                        <div class="gallery-caption">IT Passion</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://via.placeholder.com/200?text=Book" alt="Reading">
+                        <div class="gallery-caption">Hobbies</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-truc" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-truc')"><i class="fas fa-times"></i></div>
+            <div class="modal-left">
+                <img src="https://via.placeholder.com/300" class="modal-avatar-large">
+                <h2 class="modal-name">Bảo Trúc</h2>
+                <span class="modal-major" style="background:#f093fb;">Multimedia Comms</span>
+                <div class="modal-stats">
+                    <div class="stat-row"><i class="fas fa-map-marker-alt" style="color:#f093fb;"></i> Da Lat City</div>
+                    <div class="stat-row"><i class="fas fa-heart" style="color:#f093fb;"></i> Shopping, Friends</div>
+                </div>
+            </div>
+            <div class="modal-right">
+                <h3 class="section-title">Introduction</h3>
+                <div class="script-text">
+                    "Hello everyone, my name is Bảo Trúc. I come from Da Lat, a peaceful and beautiful city...
+                    <br><br>
+                    In my free time, I really enjoy going shopping and connecting with friends on Zalo."
+                </div>
+                <h3 class="section-title">Life & Hobbies</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Da+Lat" alt="Da Lat"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Shopping" alt="Shopping"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=School" alt="School"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-nhut" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-nhut')"><i class="fas fa-times"></i></div>
+            <div class="modal-left">
+                <img src="https://via.placeholder.com/300" class="modal-avatar-large">
+                <h2 class="modal-name">Minh Nhựt</h2>
+                <span class="modal-major" style="background:#fa709a;">E-commerce</span>
+                <div class="modal-stats">
+                    <div class="stat-row"><i class="fas fa-map-marker-alt" style="color:#fa709a;"></i> Ho Chi Minh City</div>
+                    <div class="stat-row"><i class="fas fa-gamepad" style="color:#fa709a;"></i> Video Games</div>
+                </div>
+            </div>
+            <div class="modal-right">
+                <h3 class="section-title">Introduction</h3>
+                <div class="script-text">
+                    "Hi everyone, I am Minh Nhựt. Born and raised in Ho Chi Minh City. I study E-commerce...
+                    <br><br>
+                    I am a big fan of video games, it helps me relax."
+                </div>
+                <h3 class="section-title">Gaming & City Life</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Saigon" alt="Saigon"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Games" alt="Games"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Study" alt="VLU"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-minh" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-minh')"><i class="fas fa-times"></i></div>
+            <div class="modal-left">
+                <img src="https://via.placeholder.com/300" class="modal-avatar-large">
+                <h2 class="modal-name">Nhật Minh</h2>
+                <span class="modal-major" style="background:#11998e;">Dentistry</span>
+                <div class="modal-stats">
+                    <div class="stat-row"><i class="fas fa-map-marker-alt" style="color:#11998e;"></i> Ha Long City</div>
+                    <div class="stat-row"><i class="fas fa-futbol" style="color:#11998e;"></i> Football, Music</div>
+                </div>
+            </div>
+            <div class="modal-right">
+                <h3 class="section-title">Introduction</h3>
+                <div class="script-text">
+                    "Hello, my name is Nhật Minh from Ha Long City. I major in Odonto-Stomatology...
+                    <br><br>
+                    Football and music are my biggest passions to stay active."
+                </div>
+                <h3 class="section-title">Passions</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=HaLong" alt="Ha Long"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Football" alt="Football"></div>
+                    <div class="gallery-item"><img src="https://via.placeholder.com/200?text=Music" alt="Music"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-thuy" class="modal-overlay">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal-thuy')"><i class="fas fa-times"></i></div>
+            <div class="modal-left">
+                <img src="https://via.placeholder.com/300" class="modal-avatar-large">
+                <h2 class="modal-name">Phương Thùy</h2>
+                <span class="modal-major" style="background:#f77062;">Multimedia Comms</span>
+                <div class="modal-stats">
+                    <div class="stat-row"><i class="fas fa-map-marker-alt" style="color:#f77062;"></i> Soc Trang Province</div>
+                    <div class="stat-row"><i class="fas fa-film" style="color:#f77062;"></i> Movies, Music</div>
+                </div>
+            </div>
+            <div class="modal-right">
+                <h3 class="section-title">Introduction</h3>
+                <div class="script-text">
+                    "Hello, I am Phương Thùy. My hometown is Soc Trang, Mekong Delta...
+                    <br><br>
+                    I chose Multimedia because I love how people express thoughts. I enjoy watching feature films."
+                </div>
+                <h3 class="section-title">My World</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="" alt="Soc Trang"></div>
+                    <div class="gallery-item"><img src="" alt="Movies"></div>
+                    <div class="gallery-item"><img src="" alt="VLU"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden'; // Khóa cuộn trang chính
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = 'auto'; // Mở lại cuộn
+        }
+
+        // Đóng khi click ra ngoài vùng trắng
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+
+</body>
+</html>
